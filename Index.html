@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Silte Calendar</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <button class="refresh-btn" onclick="location.reload();">🔄</button>
+    <div id="flag">
+      <div class="red"></div>
+      <div class="white"></div>
+      <div class="black"></div>
+    </div>
+    <button id="toggle-btn">🌙</button>
+
+    <div class="container">
+      <!-- Header with prev/next buttons and month/year display -->
+      <div id="header">
+        <button id="prevMonth">⬅️</button>
+        <span id="monthYearDisplay"></span>
+        <button id="nextMonth">➡️</button>
+      </div>
+      
+      <div id="calendarNav"></div>
+      
+      <div id="calendarContainer"></div>
+      <!-- Footer with Gregorian Date -->
+      <footer id="footer">
+        <p>በጊሪጎሪየ: <span id="firstCalendarDate"></span> G.C</p>
+        <p>በኢትዮጲያ: <span id="secondCalendarDate"></span> E.C</p>
+      </footer>
+    </div>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
