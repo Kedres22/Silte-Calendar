@@ -351,3 +351,8 @@ body {
     color: green;
     margin-left: -6px;
 }
+.eid{
+    background-color: blue;
+    color: white;
+    border-radius: 50px;
+}
