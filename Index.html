@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ethiopian Calendar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="flag">
+      <div class="red"></div>
+      <div class="white"></div>
+      <div class="black"></div>
+    </div>
+    <button class="refresh-btn" onclick="location.reload();">🔄</button>
+    <button id="toggle-btn">🌙</button>
+
+    <div class="container">
+      <!-- Header with prev/next buttons and month/year display -->
+      <div id="header">
+        <button id="prevMonth" onclick="prevMonth()">⬅️</button>
+        <span id="monthYearDisplay"></span>
+        <button id="nextMonth" onclick="nextMonth()">➡️</button>
+      </div>
+      
+      <div id="calendarNav"></div>
+      
+      <div id="calendarContainer"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
