@@ -326,6 +326,8 @@ ul.month li.today {
     margin-left: -6px;
 }
 .ath{
-    background-color:green;
+    background-color: blue;
     color: white;
+    border-radius: 50px;
 }
+
