@@ -329,5 +329,9 @@ ul.month li.today {
     background-color: blue;
     color: white;
     border-radius: 50px;
+
+  padding: 20px;
+  border: 1px solid black;
+
 }
 
