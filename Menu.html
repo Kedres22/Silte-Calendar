@@ -6,17 +6,15 @@
     <title>Menu - Ethiopian Calendar</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Basic styles for the menu page */
         body {
             padding: 20px;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            /* Respect dark mode from main page if needed */
         }
         .menu-container {
             max-width: 600px;
             margin: 40px auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.9); /* Match container style */
+            background: rgba(255, 255, 255, 0.9);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
         }
@@ -43,7 +41,7 @@
             background-color: #e0e0e0;
         }
         .back-link {
-            display: block; /* Make it block for centering */
+            display: block;
             margin-top: 30px;
             color: var(--primary);
             text-decoration: none;
@@ -54,38 +52,37 @@
             text-decoration: underline;
         }
 
-        /* Optional: Dark mode styles for menu page */
+        /* Dark mode */
         .dark-mode .menu-container {
             background: rgba(40, 40, 40, 0.9);
-            color: #e0e0e0; /* Adjust text color for dark bg */
-        }
-         .dark-mode .menu-nav a {
-            background-color: #444; /* Darker background for links */
             color: #e0e0e0;
-         }
-         .dark-mode .menu-nav a:hover {
+        }
+        .dark-mode .menu-nav a {
+            background-color: #444;
+            color: #e0e0e0;
+        }
+        .dark-mode .menu-nav a:hover {
             background-color: #555;
-         }
-         .dark-mode .back-link {
-             color: #77ccff; /* Lighter blue for dark mode */
-         }
-         /* Ensure body background matches */
-         .dark-mode {
+        }
+        .dark-mode .back-link {
+            color: #77ccff;
+        }
+        .dark-mode {
             background-color: #222;
             color: #e0e0e0;
-         }
-
+        }
     </style>
 </head>
-<body class="">
+<body>
     <div class="menu-container">
         <h1>Menu</h1>
         <nav class="menu-nav">
             <ul>
                 <li><a href="index.html">Calendar Home</a></li>
+                <li><a href="about.html">About App (የመተግበሪያ ጥቅሞች)</a></li>
                 <li><a href="https://time.et/" target="_blank">Ethiopia Date (External)</a></li>
                 <li><a href="https://www.mumineencalendar.com/#" target="_blank">Hijra Calendar (External)</a></li>
-                </ul>
+            </ul>
         </nav>
         <a href="index.html" class="back-link">← Back to Calendar</a>
     </div>
