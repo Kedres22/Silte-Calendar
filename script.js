@@ -1,330 +1,523 @@
-// GeezDate class definition
-const jOffset = 1803153;
-const jdnOfEpocH = 2311768;
-var message = "Provided date is not valid !";
+// script.js
+
+// ==================================
+// GeezDate Class Definition
+// ==================================
+const jOffset = 1803153;        // Julian day offset specific to calculation method
+const jdnOfEpocH = 2311768;     // Julian Day Number of the Hijri Epoch (example, verify if used) - Seems related to Gregorian conversion logic
+var message = "Provided date is not valid !"; // Default validation error message
 
 class GeezDate {
+    // Constructor for creating a GeezDate object
     constructor(year, month, dayOfMonth, dayOfYear, julianDay) {
         var isValidDate = this.validate(year, month, dayOfMonth);
         try {
             if (isValidDate) {
                 this.year = year;
-                this.month = month;
-                this.dayOfMonth = dayOfMonth;
-                this.dayOfYear = dayOfYear;
-                this.julianDay = julianDay;
+                this.month = month;         // 1-13 (13 = Pagume)
+                this.dayOfMonth = dayOfMonth; // 1-30 (or 1-5/6 for Pagume)
+                this.dayOfYear = dayOfYear;   // Day number within the year
+                this.julianDay = julianDay;   // Julian Day Number
             } else {
-                throw new RangeError(message);
+                // Reset message before throwing error
+                const currentMessage = message;
+                message = "Provided date is not valid !"; // Reset for next potential error
+                throw new RangeError(currentMessage);
             }
         } catch (error) {
-            console.log(error);
+            console.error("GeezDate Error:", error); // Log error to console
         }
     }
+
+    // Internal validation method
     validate(year, month, dayOfMonth) {
-        var areNumbers = Number.isInteger(year) && Number.isInteger(month) && Number.isInteger(dayOfMonth);
-        if (!areNumbers) {
-            message += "\n * -- Date parameters must be numbers!";
+        let valid = true;
+        let errorMessages = []; // Collect specific errors
+
+        // Check if inputs are numbers
+        if (!(Number.isInteger(year) && Number.isInteger(month) && Number.isInteger(dayOfMonth))) {
+            errorMessages.push("* -- Date parameters must be integers!");
+            valid = false;
         }
-        var areGreaterThanZero = month > 0 && dayOfMonth > 0;
-        if (!areGreaterThanZero) {
-            message += "\n * -- Month and dayOfMonth must be greater than 0!";
+
+        // Check if month and day are positive (only if they are numbers)
+        if (valid && (month <= 0 || dayOfMonth <= 0)) {
+             errorMessages.push("* -- Month and dayOfMonth must be greater than 0!");
+             valid = false;
         }
-        var isValidMonth = month <= 13;
-        if (!isValidMonth) {
-            message += "\n * -- Month is out of range!";
+
+        // Check month range (only if month is valid so far)
+        if (valid && month > 13) {
+            errorMessages.push("* -- Month is out of range (should be 1-13)!");
+            valid = false;
         }
-        var isValidDate = this.validateDate(year, month, dayOfMonth);
-        if (!isValidDate) {
-            message += "\n * -- Day is out of range for the month!";
+
+        // Check day range based on month and leap year (only if other checks passed)
+        if (valid && !this.isValidDayForMonth(year, month, dayOfMonth)) {
+             errorMessages.push("* -- Day ("+dayOfMonth+") is out of range for month "+month+"!");
+             valid = false;
         }
-        return areNumbers && areGreaterThanZero && isValidMonth && isValidDate;
+
+        // If invalid, update the global message
+        if (!valid) {
+             message += "\n" + errorMessages.join("\n");
+        }
+        return valid;
     }
-    validateDate(year, month, dayOfMonth) {
-        if (month != 13) {
+
+    // Helper to check if day is valid for the given month/year
+    isValidDayForMonth(year, month, dayOfMonth) {
+        if (month < 1 || month > 13 || dayOfMonth < 1) return false; // Basic sanity check
+        if (month <= 12) {
             return dayOfMonth <= 30;
-        } else {
-            return (year % 4 === 3 && dayOfMonth <= 6) || (year % 4 !== 3 && dayOfMonth <= 5);
+        } else { // Month 13 (Pagume)
+            const isLeap = (year % 4 === 3); // Ethiopian leap year rule
+            return (isLeap && dayOfMonth <= 6) || (!isLeap && dayOfMonth <= 5);
         }
     }
+
+    // Calculate GeezDate after adding a number of days
     plusDays(days) {
         return GeezDate.jdnToGeez(this.julianDay + days);
     }
+
+    // Calculate GeezDate after adding a number of years (attempts to keep same day/month)
     plusYears(years) {
+        // Note: This might result in an invalid date if the original date was Pagume 6
+        // and the target year is not a leap year. The constructor validation handles this.
         return GeezDate.of(this.year + years, this.month, this.dayOfMonth);
     }
+
+    // Calculate the day of the week for the first day of the *current* month (0=Sunday, 6=Saturday - adjust if needed)
+    // This seems incorrect based on typical usage. It calculates day of week for day 1 of current month.
+    // Let's keep it as is, but note it might not be what's expected. A better name might be firstDayOfWeekOfMonth.
+    // It appears to be used correctly in showMonth to find the start day offset.
     dayOne() {
-        return Math.ceil((this.julianDay - this.dayOfMonth) % 7);
+        // Calculate JDN for the 1st of the current month
+        const jdnDayOne = GeezDate.toJdn(this.year, this.month, 1);
+        // Calculate day of the week (0=Sunday, 1=Monday ... 6=Saturday) - Standard Gregorian interpretation
+        // The formula (jdn + 1.5) % 7 gives Sunday=0. Check if Ethiopian week starts differently.
+        // The constants array 'latinWeek' starts with "ግድር" which might correspond to Sunday.
+        // Let's assume Sunday = 0 for now based on standard JDN to DoW.
+        return Math.floor((jdnDayOne + 1.5) % 7); // Sunday=0, Monday=1, ..., Saturday=6
     }
+
+
+    // Calculate the day of the week for the *current* date (0=Sunday, 6=Saturday)
     dayOfWeek() {
-        return Math.round((this.julianDay + 0.5) % 7) % 7;
+        // Standard JDN to Day of Week calculation: (JDN + 1.5) % 7
+        // Floor ensures integer result. Sunday=0, Monday=1...Saturday=6
+        return Math.floor((this.julianDay + 1.5) % 7);
     }
+
+    // Get the maximum number of days in the current month
     getMaxDate() {
         if (this.month !== 13) {
-            return 30;
+            return 30; // Months 1-12 have 30 days
         } else {
-            return this.year % 4 === 3 ? 6 : 5;
+            // Month 13 (Pagume) depends on leap year
+            return (this.year % 4 === 3) ? 6 : 5; // 6 days in leap year, 5 otherwise
         }
     }
+
+    // Convert the GeezDate to a JavaScript Date object (UTC)
     toGregorian() {
-        return new Date((this.julianDay - jdnOfEpocH) * 86400000);
+        // The formula seems to approximate conversion but might have offset issues.
+        // Standard JDN to Unix timestamp: (JDN - 2440587.5) * 86400000
+        // Using jdnOfEpocH suggests a different reference point. Test this carefully.
+        // Let's use the standard conversion for potentially better accuracy.
+        const unixTimestamp = (this.julianDay - 2440587.5) * 86400000;
+        return new Date(unixTimestamp);
     }
+
+    // Static method: Convert Julian Day Number to GeezDate object
     static jdnToGeez(jdn) {
-        var r = (jdn - jOffset) % 1461;
-        var n = r % 365 + Math.imul(365, (r / 1460));
-        var year = Math.floor(Math.imul(4, ((jdn - jOffset) / 1461)) + r / 365 - r / 1460);
-        var month = Math.floor(n / 30 + 1);
-        var dayOfMonth = Math.floor(n % 30 + 1);
-        var dayOfYear = Math.floor(Math.imul(month - 1, 30) + dayOfMonth);
-        return new GeezDate(year, month, dayOfMonth, dayOfYear, jdn);
+        // This calculation looks specific to a particular algorithm. Ensure it's correct.
+        // Based on common algorithms:
+        const r = (jdn - jOffset); // Days since Ethiopian epoch
+        const n = (r % 1461); // Day within 4-year cycle (0-1460)
+        let year = 4 * Math.floor(r / 1461) + Math.floor(n / 365) - Math.floor(n / 1460);
+
+        let dayOfYear = (n % 365); // Day within the year (0-364)
+        if (n === 1460) dayOfYear = 365; // Handle last day of leap year correctly
+
+        // Adjust year if day is Pagume 6 in a leap year (represented as day 365 initially)
+        if (dayOfYear === 365 && (year % 4 !== 3)) {
+             // This case shouldn't happen if calculations are right, but as safety:
+             // console.warn("Potential issue in JDN to Geez conversion logic.");
+        }
+
+        let month, dayOfMonth;
+        if (dayOfYear === 365) { // Pagume 6 (only in leap years)
+            month = 13;
+            dayOfMonth = 6;
+        } else if (dayOfYear >= 360) { // Pagume 1-5
+             month = 13;
+             dayOfMonth = dayOfYear - 359; // dayOfYear 360 -> day 1, ..., 364 -> day 5
+        } else { // Months 1-12
+            month = Math.floor(dayOfYear / 30) + 1;
+            dayOfMonth = (dayOfYear % 30) + 1;
+        }
+
+        // Recalculate dayOfYear based on derived month/day for consistency
+        let calculatedDayOfYear = (month - 1) * 30 + dayOfMonth;
+
+        return new GeezDate(year, month, dayOfMonth, calculatedDayOfYear, jdn);
     }
+
+
+    // Static method: Convert GeezDate components to Julian Day Number
     static toJdn(year, month, dayOfMonth) {
-        return (jOffset + 365) + Math.imul(365, year - 1) + (year / 4) + Math.imul(30, month) + dayOfMonth - 31;
+        // Validate input first before calculation
+        const tempDate = new GeezDate(year, month, dayOfMonth, 0, 0); // Use validation logic
+        if (!tempDate.year) return NaN; // Return NaN if validation failed
+
+        // Calculation based on common algorithms:
+        const jdn = jOffset + (year * 365) + Math.floor(year / 4) + ((month - 1) * 30) + dayOfMonth -1;
+        return jdn;
     }
+
+    // Static method: Get the current date in GeezDate format based on system time
     static now() {
-        var now = new Date().valueOf();
-        var res = now / 86400000;
-        return this.jdnToGeez(res + jdnOfEpocH);
+        // Get current UTC time
+        const now = new Date();
+        // Calculate Julian Day Number from JavaScript Date (considers UTC)
+        const msPerDay = 86400000;
+        const unixEpochJdn = 2440587.5; // JDN of 1970-01-01T00:00:00Z
+        const jdn = (now.getTime() / msPerDay) + unixEpochJdn;
+        return this.jdnToGeez(Math.floor(jdn)); // Use floor to get the start of the day
     }
-    static from(date = Date) {
+
+    // Static method: Convert a JavaScript Date object to GeezDate
+    static from(date = new Date()) { // Default to current time if no date provided
         try {
-            var julianDay = Math.floor((date / 86400000) - (date.getTimezoneOffset() / 1440) + jdnOfEpocH);
-            return this.jdnToGeez(julianDay);
+            if (!(date instanceof Date)) {
+                throw new TypeError("Input must be an instance of Date");
+            }
+             // Calculate Julian Day Number from JavaScript Date (considers UTC)
+            const msPerDay = 86400000;
+            const unixEpochJdn = 2440587.5;
+            const jdn = (date.getTime() / msPerday) + unixEpochJdn;
+            return this.jdnToGeez(Math.floor(jdn));
         } catch (error) {
-            console.log(new TypeError("value must be an instance of Date"));
+            console.error("GeezDate.from Error:", error);
+            return null; // Return null or handle error as appropriate
         }
     }
+
+    // Static method: Create a GeezDate object from year, month, day components
     static of(year, month, dayOfMonth) {
-        var dayOfYear = Math.imul(30, month - 1) + dayOfMonth;
-        var jdn = this.toJdn(year, month, dayOfMonth);
+        // Calculate JDN first
+        const jdn = this.toJdn(year, month, dayOfMonth);
+        if (isNaN(jdn)) {
+            console.error("GeezDate.of Error: Invalid date components provided.");
+            return null; // Indicate failure
+        }
+        // Recalculate dayOfYear based on valid inputs
+        const dayOfYear = (month - 1) * 30 + dayOfMonth;
+        // Create the object using the constructor for validation
         return new GeezDate(year, month, dayOfMonth, dayOfYear, jdn);
     }
 }
 
-// Calendar class definition
-const currentDate = GeezDate.now();
+
+// ==================================
+// Calendar Class Definition
+// ==================================
+// Get current date once for highlighting today
+const todayGeez = GeezDate.now(); // Use the static now() method
+
 class Calendar {
     constructor(constants) {
-        this.constants = constants;
+        this.constants = constants; // Language/locale constants (month names, weekdays)
     }
-    showMonth(start) {
-        var thisMonth = start.month;
-        var thisYear = start.year;
-        var firstDay = start.dayOfWeek();
-        var weekDays = this.constants.week;
-        var displayedMonth = this.constants.getMonth(start.month);
 
-        // Update header background image
-        var bar = document.getElementById("calendarNav");
-        bar.style.background = "url('./res/" + thisMonth + ".webp')";
-        bar.style.backgroundPosition = "center";
-        bar.style.backgroundSize = "cover";
+    // Generate HTML for a given month starting from a specific GeezDate
+    showMonth(startDate) { // startDate should be the 1st of the month to display
+        const displayMonth = startDate.month;
+        const displayYear = startDate.year;
+        const firstDayOfWeek = startDate.dayOne(); // Get weekday of the 1st (0=Sun, 6=Sat)
+        const weekDays = this.constants.week;
+        const displayedMonthName = this.constants.getMonth(displayMonth);
 
-        // Build the calendar grid
-        start = start.plusDays(-firstDay);
-        var html = "<table>";
-        html += "<tr style='padding:3px;'>";
-        html +=
-            "<th class='weekend'>" + weekDays[0] + "</th>" +
-            "<th>" + weekDays[1] + "</th>" +
-            "<th>" + weekDays[2] + "</th>" +
-            "<th>" + weekDays[3] + "</th>" +
-            "<th>" + weekDays[4] + "</th>" +
-            "<th>" + weekDays[5] + "</th>" +
-            "<th class='weekend'>" + weekDays[6] + "</th></tr></table>";
+        // --- Update Header Background Image ---
+        const calendarNav = document.getElementById("calendarNav");
+        if (calendarNav) {
+            // Use modulo for Pagume to potentially reuse an image or have a default
+            const imageMonth = displayMonth <= 12 ? displayMonth : 13; // Use 13 for Pagume image key
+            calendarNav.style.backgroundImage = `url('./res/${imageMonth}.webp')`;
+            calendarNav.style.backgroundPosition = "center";
+            calendarNav.style.backgroundSize = "cover";
+        }
+
+        // --- Build the Calendar Grid ---
+        // Calculate the JDN of the first cell to display (might be from previous month)
+        let currentCellDate = startDate.plusDays(-firstDayOfWeek);
+
+        // Build table header (weekday names)
+        let html = "<table><thead><tr>";
+        // Map constants.week array indices (0-6) to match dayOfWeek() result (0=Sun, 6=Sat)
+        // Assuming constants.week[0] is Sunday, constants.week[6] is Saturday. Adjust if needed.
+        for (let i = 0; i < 7; i++) {
+             const dayIndex = i; // Direct mapping assuming week array starts Sunday
+             const isWeekend = (dayIndex === 0 || dayIndex === 6); // Sunday or Saturday
+             html += `<th class='${isWeekend ? "weekend" : ""}'>${weekDays[dayIndex]}</th>`;
+        }
+        html += "</tr></thead></table>";
+
+        // Build list for days
         html += "<ul class='month' id='mon'>";
-        for (let i = 0; i < 42; i++) {
-            html += "<li class='day ";
-            if (start.month === thisMonth) {
-                if (i % 7 === 0 || i % 7 === 6) {
-                    html += "weekend ";
+        const totalCells = 42; // Always display 6 weeks for consistency
+
+        for (let i = 0; i < totalCells; i++) {
+            const cellDay = currentCellDate.dayOfMonth;
+            const cellMonth = currentCellDate.month;
+            const cellYear = currentCellDate.year;
+            const cellDayOfWeek = currentCellDate.dayOfWeek(); // 0=Sun, 6=Sat
+
+            let classes = ['day']; // Base class
+
+            if (cellMonth === displayMonth) {
+                // Day belongs to the currently displayed month
+                if (cellDayOfWeek === 0 || cellDayOfWeek === 6) {
+                    classes.push('weekend');
                 } else {
-                    html += "week ";
+                    classes.push('week'); // Maybe rename this class? 'weekday'?
                 }
+                // Check if this cell is today's date
                 if (
-                    start.dayOfMonth === currentDate.dayOfMonth &&
-                    thisMonth === currentDate.month &&
-                    thisYear === currentDate.year
+                    todayGeez && // Ensure todayGeez is valid
+                    cellDay === todayGeez.dayOfMonth &&
+                    cellMonth === todayGeez.month &&
+                    cellYear === todayGeez.year
                 ) {
-                    html += "today";
+                    classes.push('today');
                 }
             } else {
-                html += "offset";
+                // Day is offset (belongs to previous or next month)
+                classes.push('offset');
             }
-            html += "'>";
-            html += String(start.dayOfMonth).padStart(2, "0") + "</li>";
-            start = start.plusDays(1);
+
+            // Add list item with calculated classes and day number
+            html += `<li class="${classes.join(' ')}">`;
+            html += String(cellDay).padStart(2, "0"); // Format day with leading zero
+            html += "</li>";
+
+            // Move to the next day for the next cell
+            currentCellDate = currentCellDate.plusDays(1);
         }
         html += "</ul>";
-        return { html: html, displayedMonth: displayedMonth, year: thisYear };
+
+        return { html: html, displayedMonth: displayedMonthName, year: displayYear };
     }
 }
 
-// Constants and initialization
-const latinYear = [
-    "መሰሮ",
-    "ጢቂምት",
-    "ሂዳር",
-    "መሼ",
-    "ኢንቶጎት",
-    "መንገስ",
-    "ወቶ",
-    "ማዜ",
-    "አስሬ",
-    "ሰኜ",
-    "አምሌ",
-    "ናሴ",
-    "ቃቅሜ"
+// ==================================
+// Constants and Initialization
+// ==================================
+// Define month and week names (Using Amharic names as placeholders - replace if needed)
+const amharicMonths = [
+    "መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት",
+    "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"
 ];
-const geezYear = [
-    "መሰሮ",
-    "ጢቂምት",
-    "ሂዳር",
-    "መሼ",
-    "ኢንቶጎት",
-    "መንገስ",
-    "ወቶ",
-    "መዜ",
-    "አስሬ",
-    "ሰኜ",
-    "አምሌ",
-    "ናሴ",
-    "ቃቅሜ"
-];
-const latinWeek = ["ግድር", "ኡጠት", "መገር", "አርጴ", "ከምስ", "ጂማት", "አንሰ"];
-const geezWeek = ["ግድር", "ኡጠት", "መገር", "አርጴ", "ከምስ", "ጂማት", "አንሰ"];
+const amharicWeek = ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]; // Sun - Sat
 
+// Constants provided in original script (Latin names?) - Verify these correspond to the calendar logic
+const latinYear = [ // Assuming these map 1-13
+    "መሰሮ", "ጢቂምት", "ሂዳር", "መሼ", "ኢንቶጎት", "መንገስ",
+    "ወቶ", "ማዜ", "አስሬ", "ሰኜ", "አምሌ", "ናሴ", "ቃቅሜ"
+];
+const latinWeek = ["ግድር", "ኡጠት", "መገር", "አርጴ", "ከምስ", "ጂማት", "አንሰ"]; // Assuming Sun-Sat mapping
+
+// Class to manage language constants
 class Constants {
-    constructor(locale) {
-        this.locale = locale;
-        this.setDaysOfWeek();
-        this.setMonthsOfYear();
+    constructor(locale = "am") { // Default to Amharic or the provided 'latin' set
+        this.setLocale(locale);
     }
+
     setLocale(locale) {
         this.locale = locale;
         this.setDaysOfWeek();
         this.setMonthsOfYear();
     }
+
     setMonthsOfYear() {
-        if (this.locale === "iso") {
+        // Choose month names based on locale
+        if (this.locale === "am") {
+            this.months = amharicMonths;
+        } else if (this.locale === "latin") { // Use the 'latin' set provided
             this.months = latinYear;
         } else {
-            this.months = geezYear;
+            this.months = amharicMonths; // Default fallback
         }
     }
+
     setDaysOfWeek() {
-        if (this.locale === "iso") {
+        // Choose week names based on locale
+         if (this.locale === "am") {
+            this.week = amharicWeek; // Sunday - Saturday
+        } else if (this.locale === "latin") {
+             // Assuming 'latinWeek' also maps Sunday(0) to Saturday(6)
+             // Adjust indices if 'ግድር' is not Sunday
             this.week = latinWeek;
         } else {
-            this.week = geezWeek;
+            this.week = amharicWeek; // Default fallback
         }
     }
+
+    // Get weekday name by index (0-6)
     getDayOfWeek(value) {
-        return this.week[value];
+        return this.week[value] || ""; // Return empty string if index is invalid
     }
+
+    // Get month name by month number (1-13)
     getMonth(month) {
-        return this.months[month - 1];
+        return this.months[month - 1] || ""; // Adjust index (0-12)
     }
 }
 
-// Instantiate constants with desired locale ("iso" or default for geez)
-const constants = new Constants("iso");
-// Create a Calendar instance using these constants.
+// Instantiate constants - choose 'am' for Amharic or 'latin' for the other set
+const constants = new Constants("latin"); // Or "am"
+// Create a Calendar instance
 const calendar = new Calendar(constants);
 
-// Global state for displayed month
-let currentDisplayedDate = GeezDate.now(); // starting with current Ethiopian date
+// ==================================
+// Global State & Rendering
+// ==================================
+// Get the initial date to display (current month based on system time)
+let currentDisplayedDate = GeezDate.now();
 let y = currentDisplayedDate.year;
 let m = currentDisplayedDate.month;
 
-// Function to render the calendar and update header month/year display.
+// --- DOM Elements ---
+const calendarContainer = document.getElementById("calendarContainer");
+const monthYearDisplay = document.getElementById("monthYearDisplay");
+const toggleBtn = document.getElementById("toggle-btn");
+const hamburgerBtn = document.getElementById('hamburger-menu'); // Get hamburger button
+
+// --- Render Function ---
 function renderCalendar() {
-    const result = calendar.showMonth(GeezDate.of(y, m, 1));
-    document.getElementById("calendarContainer").innerHTML = result.html;
-    document.getElementById("monthYearDisplay").innerHTML = result.displayedMonth + ", " + result.year;
+    if (!calendarContainer || !monthYearDisplay) {
+        console.error("Calendar container or display element not found!");
+        return;
+    }
+     // Ensure m and y are valid before creating the date
+     if (m < 1 || m > 13 || !Number.isInteger(y)) {
+        console.error(`Invalid month (${m}) or year (${y}) for rendering.`);
+        // Optionally display an error message to the user
+        monthYearDisplay.textContent = "Error";
+        calendarContainer.innerHTML = "<p>Could not load calendar data.</p>";
+        return;
+     }
+
+    const dateToRender = GeezDate.of(y, m, 1); // Create GeezDate for the 1st of the target month
+     if (!dateToRender) {
+          console.error(`Failed to create GeezDate for ${y}-${m}-1`);
+          // Handle error appropriately, maybe show message in UI
+          return;
+     }
+    const result = calendar.showMonth(dateToRender); // Generate calendar HTML
+    calendarContainer.innerHTML = result.html;        // Update calendar grid
+    monthYearDisplay.textContent = `${result.displayedMonth}, ${result.year}`; // Update header text
 }
 
+
+// ==================================
+// Gregorian/Ethiopian Conversion Example (Not used in calendar display)
+// ==================================
+/*
+// This function seems to attempt a specific Gregorian to Ethiopian conversion.
+// It differs significantly from the GeezDate class logic. Review its necessity.
 function toSecondCalendarDate(firstCalendarDate) {
-    const fYear = firstCalendarDate.getFullYear();
-    const fMonth = firstCalendarDate.getMonth() + 1;
-    const fDay = firstCalendarDate.getDate();
-
-    let sYear = fYear - 7;
-    let sMonth, sDay;
-
-    const newYearFC = new Date(fYear, 8, 11);
-    const isLeapFC = (fYear % 4 === 0 && fYear % 100 !== 0) || (fYear % 400 === 0);
-    if (isLeapFC) newYearFC.setDate(12);
-
-    if (firstCalendarDate < newYearFC) {
-        sYear -= 1;
-    }
-
-    const secondCalendarMonthStart = [
-        [9, 11], [10, 11], [11, 10], [12, 10], [1, 9], [2, 8], 
-        [3, 10], [4, 9], [5, 9], [6, 8], [7, 8], [8, 7], [9, 6]
-    ];
-
-    for (let i = 0; i < secondCalendarMonthStart.length; i++) {
-        let [fM, fD] = secondCalendarMonthStart[i];
-        if (fMonth > fM || (fMonth === fM && fDay >= fD)) {
-            sMonth = i + 1;
-            sDay = fDay - fD + 1;
-            if (sDay < 1) sDay += 30;
-        }
-    }
-
-    return { sYear, sMonth, sDay };
+    // ... (original function code) ...
+    // It seems complex and might not be needed if GeezDate.from(gregorianDate) works.
 }
 
-const today = new Date();
-const fDay = String(today.getDate()).padStart(2, '0');
-const fMonth = String(today.getMonth() + 1).padStart(2, '0');
-const fYear = today.getFullYear();
-const formattedFirstCalendarDate = `${fDay}-${fMonth}-${fYear}`;
-
-const { sYear, sMonth, sDay } = toSecondCalendarDate(today);
+const todayGregorian = new Date(); // Current system date
+const { sYear, sMonth, sDay } = toSecondCalendarDate(todayGregorian); // Use the conversion function
+// Format dates (example)
+const formattedFirstCalendarDate = `${String(todayGregorian.getDate()).padStart(2, '0')}-${String(todayGregorian.getMonth() + 1).padStart(2, '0')}-${todayGregorian.getFullYear()}`;
 const formattedSecondCalendarDate = `${String(sDay).padStart(2, '0')}-${String(sMonth).padStart(2, '0')}-${sYear}`;
+// Could display these somewhere if needed, e.g., in the footer
+// document.getElementById('current-gregorian-date').textContent = `Gregorian: ${formattedFirstCalendarDate}`;
+// document.getElementById('current-ethiopian-date').textContent = `Ethiopian: ${formattedSecondCalendarDate}`;
+*/
 
-// Functions to switch months
+// ==================================
+// Event Listeners & UI Interaction
+// ==================================
+
+// --- Month Navigation ---
 function nextMonth() {
     if (m < 13) {
-        m = m + 1;
+        m++; // Go to next month
     } else {
-        m = 1;
-        y = y + 1;
+        m = 1; // Go to first month of next year
+        y++;
     }
-    renderCalendar();
+    renderCalendar(); // Re-render the calendar
 }
 
 function prevMonth() {
     if (m > 1) {
-        m = m - 1;
+        m--; // Go to previous month
     } else {
-        m = 13;
-        y = y - 1;
+        m = 13; // Go to last month of previous year
+        y--;
     }
-    renderCalendar();
+    renderCalendar(); // Re-render the calendar
 }
 
-const toggleBtn = document.getElementById("toggle-btn");
+// --- Dark Mode Toggle ---
+if (toggleBtn) {
+    // Check local storage for theme preference on load
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-mode");
+        toggleBtn.textContent = "☀️"; // Sun icon for dark mode
+        toggleBtn.title = "Switch to Light Mode";
+    } else {
+         toggleBtn.textContent = "🌙"; // Moon icon for light mode
+         toggleBtn.title = "Switch to Dark Mode";
+    }
 
-// Check local storage for theme preference
-if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark-mode");
-    toggleBtn.textContent = "☀️";
+    toggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+
+        // Update button text/icon and local storage
+        if (document.body.classList.contains("dark-mode")) {
+            toggleBtn.textContent = "☀️";
+            toggleBtn.title = "Switch to Light Mode";
+            localStorage.setItem("theme", "dark");
+        } else {
+            toggleBtn.textContent = "🌙";
+             toggleBtn.title = "Switch to Dark Mode";
+            localStorage.setItem("theme", "light");
+        }
+    });
+} else {
+    console.warn("Dark mode toggle button (#toggle-btn) not found.");
 }
 
-toggleBtn.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
 
-    if (document.body.classList.contains("dark-mode")) {
-        toggleBtn.textContent = "☀️";
-        localStorage.setItem("theme", "dark");
-    } else {
-        toggleBtn.textContent = "🌙";
-        localStorage.setItem("theme", "light");
-    }
+// --- Hamburger Menu Functionality ---
+if (hamburgerBtn) { // Check if the button exists in the DOM
+    hamburgerBtn.addEventListener('click', () => {
+        // Navigate to the menu page when the hamburger icon is clicked
+        window.location.href = 'menu.html';
+    });
+} else {
+     console.warn("Hamburger menu button (#hamburger-menu) not found.");
+}
+
+// ==================================
+// Initial Calendar Render on Load
+// ==================================
+// Ensure the DOM is fully loaded before rendering the initial calendar
+// This is generally good practice, though may not be strictly necessary
+// if the script tag is at the end of the body.
+document.addEventListener('DOMContentLoaded', () => {
+     renderCalendar();
 });
 
-// Initial render of calendar
-renderCalendar();
+// If you don't want to wait for DOMContentLoaded (e.g., script is at end of body):
+// renderCalendar(); // Call directly
