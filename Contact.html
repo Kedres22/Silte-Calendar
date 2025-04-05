@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Me</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .dark-mode {
+      background: #1f1f1f;
+      color: #fff;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+      animation: slideFadeIn 1s ease;
+    }
+    .dark-mode .container {
+      background: rgba(30,30,30,0.95);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #007acc;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 1.1em;
+      transition: transform 0.3s ease;
+    }
+    li:hover {
+      transform: translateX(10px);
+    }
+    a {
+      text-decoration: none;
+      color: #007acc;
+      word-break: break-all;
+    }
+    .dark-mode a {
+      color: #66d9ef;
+    }
+    .icon {
+      font-size: 1.4em;
+      min-width: 25px;
+    }
+
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      font-weight: bold;
+      color: #007acc;
+    }
+    .dark-mode .back-link {
+      color: #66d9ef;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Contact Me</h1>
+    <ul>
+      <li><i class="fab fa-telegram icon"></i><a href="https://t.me/kedretech" target="_blank">Telegram</a></li>
+      <li><i class="fab fa-tiktok icon"></i><a href="https://tiktok.com/@kedres222" target="_blank">TikTok</a></li>
+      <li><i class="fab fa-facebook icon"></i><a href="https://facebook.com/akmel.seman" target="_blank">Facebook</a></li>
+      <li><i class="fab fa-whatsapp icon"></i><a href="https://wa.me/qr/VWMMP...FAP1" target="_blank">WhatsApp</a></li>
+      <li><i class="fas fa-globe icon"></i><a href="https://www.youtube.com/@kedres22" target="_blank">YouTube</a></li>
+      <li><i class="fas fa-phone icon"></i><a href="tel:+251908195656">+251 908 195 656</a></li>
+      <li><i class="fas fa-sms icon"></i><a href="sms:+251908195656">Text: +251 908 195 656</a></li>
+      <li><i class="fas fa-envelope icon"></i><a href="mailto:kedres22@gmail.com">kedres22@gmail.com</a></li>
+    </ul>
+    <a href="menu.html" class="back-link">← Back to Menu</a>
+  </div>
+
+  <script>
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+    }
+  </script>
+</body>
+</html>
