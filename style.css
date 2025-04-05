@@ -238,10 +238,10 @@ ul.month li.today {
 #flag .white::before {
     content: '★';
     position: absolute;
-    top: 45%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 12px;
+    font-size: 15px;
     color: green;
 }
 
@@ -251,7 +251,7 @@ ul.month li.today {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 20px;
+    font-size: 25px;
     color: green;
     margin-left: -6px;
 }
