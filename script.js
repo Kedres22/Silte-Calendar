@@ -322,4 +322,43 @@ if (toggleBtn) {
         toggleBtn.title = "Switch to Dark Mode";
     }
 
-    toggleBtn.addEventListener("click", ()
+    toggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+
+        if (document.body.classList.contains("dark-mode")) {
+            toggleBtn.textContent = "☀️";
+            toggleBtn.title = "Switch to Light Mode";
+            localStorage.setItem("theme", "dark");
+        } else {
+            toggleBtn.textContent = "🌙";
+            toggleBtn.title = "Switch to Dark Mode";
+            localStorage.setItem("theme", "light");
+        }
+    });
+} else {
+    console.warn("Dark mode toggle button (#toggle-btn) not found.");
+}
+
+// Hamburger Menu Functionality
+if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', () => {
+        // Navigate to the menu page when the hamburger icon is clicked
+        window.location.href = 'menu.html';
+    });
+} else {
+    console.warn("Hamburger menu button (#hamburger-menu) not found.");
+}
+
+// Calendar Initialization
+function initializeCalendar() {
+    renderCalendar();
+    console.log("Calendar initialized successfully");
+}
+
+// Initial Calendar Render on Load
+document.addEventListener('DOMContentLoaded', () => {
+    initializeCalendar();
+});
+
+// Initial render of calendar
+renderCalendar();
