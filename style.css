@@ -251,9 +251,9 @@ ul.month li.today {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 25px;
+    font-size: 30px;
     color: green;
-    margin-left: -6px;
+    margin-left: -5px;
 }
 
 /* Refresh Button */
