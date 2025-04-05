@@ -1,4 +1,3 @@
-// script.js
 // GeezDate class definition
 const jOffset = 1803153;
 const jdnOfEpocH = 2311768;
@@ -325,27 +324,7 @@ toggleBtn.addEventListener("click", () => {
         toggleBtn.textContent = "🌙";
         localStorage.setItem("theme", "light");
     }
-
-
-// --- Hamburger Menu Functionality ---
-if (hamburgerBtn) { // Check if the button exists in the DOM
-    hamburgerBtn.addEventListener('click', () => {
-        // Navigate to the menu page when the hamburger icon is clicked
-        window.location.href = 'menu.html';
-    });
-} else {
-     console.warn("Hamburger menu button (#hamburger-menu) not found.");
-}
-
-// ==================================
-// Initial Calendar Render on Load
-// ==================================
-// Ensure the DOM is fully loaded before rendering the initial calendar
-// This is generally good practice, though may not be strictly necessary
-// if the script tag is at the end of the body.
-document.addEventListener('DOMContentLoaded', () => {
-     renderCalendar();
 });
 
-// If you don't want to wait for DOMContentLoaded (e.g., script is at end of body):
-// renderCalendar(); // Call directly
+// Initial render of calendar
+renderCalendar();
