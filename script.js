@@ -1,6 +1,3 @@
-Here's the complete consolidated code with all the requested functionality:
-
-```javascript
 // GeezDate class definition
 const jOffset = 1803153;
 const jdnOfEpocH = 2311768;
