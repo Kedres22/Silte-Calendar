@@ -324,7 +324,6 @@ toggleBtn.addEventListener("click", () => {
         toggleBtn.textContent = "🌙";
         localStorage.setItem("theme", "light");
     }
-});
 // (Keep all your existing GeezDate, Calendar, Constants, etc. code above)
 
 // ... existing code ...
