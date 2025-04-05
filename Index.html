@@ -33,9 +33,19 @@
         <span><a class="hjr" href="https://www.mumineencalendar.com/" target="_blank" rel="noopener noreferrer">Hijri Calendar</a></span>
         </p>
       <p style="font-size: 0.8em; color: var(--text-secondary); margin-top: 10px;">
-          Current Gregorian Date: April 5, 2025 <br>
-          Location: Ethiopia
-      </p>
+    Current Gregorian Date: <span id="current-date"></span> <br>
+    Location: Ethiopia
+</p>
+
+<script>
+    function updateDate() {
+        const today = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const currentDate = today.toLocaleDateString('en-US', options);
+        document.getElementById('current-date').textContent = currentDate;
+    }
+    updateDate(); // Call the function when the page loads
+</script>
     </footer>
 
     <script src="script.js"></script>
