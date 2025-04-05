@@ -328,8 +328,9 @@ ul.month li.today {
 .ath{
     background-color: blue;
     color: white;
+    position: fixed;
     border-radius: 50px;
-    margin-right:100px;
+    margin-right: 50px;
 
   padding: 10px;
   border: 1px solid black;
@@ -337,9 +338,10 @@ ul.month li.today {
 }
 .hjr{
     background-color: blue;
+    position: fixed;
     color: white;
     border-radius: 50px;
-    margin-left: 70px;
+    margin-left: 50px;
     padding: 10px;
   border: 1px solid black;
 }
