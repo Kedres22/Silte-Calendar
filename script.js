@@ -325,6 +325,49 @@ toggleBtn.addEventListener("click", () => {
         localStorage.setItem("theme", "light");
     }
 });
+// (Keep all your existing GeezDate, Calendar, Constants, etc. code above)
 
-// Initial render of calendar
+// ... existing code ...
+
+// Functions to switch months (Keep these)
+function nextMonth() {
+    if (m < 13) {
+        m = m + 1;
+    } else {
+        m = 1;
+        y = y + 1;
+    }
+    renderCalendar();
+}
+
+function prevMonth() {
+    if (m > 1) {
+        m = m - 1;
+    } else {
+        m = 13;
+        y = y - 1;
+    }
+    renderCalendar();
+}
+
+// Dark Mode Toggle (Keep this)
+const toggleBtn = document.getElementById("toggle-btn");
+// ... (rest of the dark mode code) ...
+
+
+// --- Hamburger Menu Functionality (Add this section) ---
+const hamburgerBtn = document.getElementById('hamburger-menu');
+
+if (hamburgerBtn) { // Check if the button exists
+    hamburgerBtn.addEventListener('click', () => {
+        // Navigate to the menu page when the hamburger icon is clicked
+        window.location.href = 'menu.html';
+    });
+}
+// --- End of Hamburger Menu Functionality ---
+
+
+// Initial render of calendar (Keep this ideally at the end)
 renderCalendar();
+
+
