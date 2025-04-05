@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Ethiopian Calendar</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Basic styles for the menu page */
+        body {
+            padding: 20px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            /* Respect dark mode from main page if needed */
+        }
+        .menu-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9); /* Match container style */
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        .menu-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .menu-nav li {
+            margin-bottom: 15px;
+        }
+        .menu-nav a {
+            display: block;
+            padding: 15px;
+            background-color: #f0f0f0;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: background-color 0.3s;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .menu-nav a:hover {
+            background-color: #e0e0e0;
+        }
+        .back-link {
+            display: block; /* Make it block for centering */
+            margin-top: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Optional: Dark mode styles for menu page */
+        .dark-mode .menu-container {
+            background: rgba(40, 40, 40, 0.9);
+            color: #e0e0e0; /* Adjust text color for dark bg */
+        }
+         .dark-mode .menu-nav a {
+            background-color: #444; /* Darker background for links */
+            color: #e0e0e0;
+         }
+         .dark-mode .menu-nav a:hover {
+            background-color: #555;
+         }
+         .dark-mode .back-link {
+             color: #77ccff; /* Lighter blue for dark mode */
+         }
+         /* Ensure body background matches */
+         .dark-mode {
+            background-color: #222;
+            color: #e0e0e0;
+         }
+
+    </style>
+</head>
+<body class="">
+    <div class="menu-container">
+        <h1>Menu</h1>
+        <nav class="menu-nav">
+            <ul>
+                <li><a href="index.html">Calendar Home</a></li>
+                <li><a href="https://time.et/" target="_blank">Ethiopia Date (External)</a></li>
+                <li><a href="https://www.mumineencalendar.com/#" target="_blank">Hijra Calendar (External)</a></li>
+                </ul>
+        </nav>
+        <a href="index.html" class="back-link">← Back to Calendar</a>
+    </div>
+
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark-mode");
+        }
+    </script>
+</body>
+</html>
