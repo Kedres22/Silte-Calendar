@@ -325,7 +325,6 @@ toggleBtn.addEventListener("click", () => {
         toggleBtn.textContent = "🌙";
         localStorage.setItem("theme", "light");
     }
-});
 
 
 // --- Hamburger Menu Functionality ---
