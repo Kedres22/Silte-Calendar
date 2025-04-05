@@ -7,28 +7,38 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+
+    <button id="hamburger-menu" class="hamburger-button">☰</button>
+
     <div id="flag">
-      <div class="red"></div>
-      <div class="white"></div>
-      <div class="black"></div>
-    </div>
-    <button class="refresh-btn" onclick="location.reload();">🔄</button>
-    <button id="toggle-btn">🌙</button>
+      <div class="red"></div>    <div class="white"></div>  <div class="black"></div>   </div>
+
+    <button class="refresh-btn" onclick="location.reload();" title="Refresh Page">🔄</button>
+    <button id="toggle-btn" title="Toggle Dark/Light Mode">🌙</button>
 
     <div class="container">
-      <!-- Header with prev/next buttons and month/year display -->
+
       <div id="header">
-        <button id="prevMonth" onclick="prevMonth()">⬅️</button>
-        <span id="monthYearDisplay"></span>
-        <button id="nextMonth" onclick="nextMonth()">➡️</button>
+        <button id="prevMonth" onclick="prevMonth()" title="Previous Month">⬅️</button>
+        <span id="monthYearDisplay"></span> <button id="nextMonth" onclick="nextMonth()" title="Next Month">➡️</button>
       </div>
-      
+
       <div id="calendarNav"></div>
-      
+
       <div id="calendarContainer"></div>
-    </div>
+
+    </div> <footer>
+      <p>
+        <span><a class="ath" href="https://time.et/" target="_blank" rel="noopener noreferrer">Ethiopian Date & Time</a></span>
+        <span><a class="hjr" href="https://www.mumineencalendar.com/" target="_blank" rel="noopener noreferrer">Hijri Calendar</a></span>
+        </p>
+      <p style="font-size: 0.8em; color: var(--text-secondary); margin-top: 10px;">
+          Current Gregorian Date: April 5, 2025 <br>
+          Location: Ethiopia
+      </p>
+    </footer>
 
     <script src="script.js"></script>
+
   </body>
-  <div><p><span ><a class="ath" href="https://time.et/" target="_blank">Ethiopia Date</a></span><span ><a class="hjr" href="https://www.mumineencalendar.com/#" target="_blank">Hijra Calendar</a></span></p></div>
 </html>
