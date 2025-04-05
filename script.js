@@ -324,19 +324,24 @@ toggleBtn.addEventListener("click", () => {
         toggleBtn.textContent = "🌙";
         localStorage.setItem("theme", "light");
     }
-// --- Hamburger Menu Functionality (Add this section) ---
-const hamburgerBtn = document.getElementById('hamburger-menu');
 
-if (hamburgerBtn) { // Check if the button exists
+// --- Hamburger Menu Functionality ---
+if (hamburgerBtn) { // Check if the button exists in the DOM
     hamburgerBtn.addEventListener('click', () => {
         // Navigate to the menu page when the hamburger icon is clicked
         window.location.href = 'menu.html';
     });
+} else {
+     console.warn("Hamburger menu button (#hamburger-menu) not found.");
 }
-// --- End of Hamburger Menu Functionality ---
 
-
-// Initial render of calendar (Keep this ideally at the end)
-renderCalendar();
-
+// ==================================
+// Initial Calendar Render on Load
+// ==================================
+// Ensure the DOM is fully loaded before rendering the initial calendar
+// This is generally good practice, though may not be strictly necessary
+// if the script tag is at the end of the body.
+document.addEventListener('DOMContentLoaded', () => {
+     renderCalendar();
+});
 
